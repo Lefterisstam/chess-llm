@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess LLM — Mistral 7B</title>
+    <link rel="stylesheet"
+          href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+          crossorigin="anonymous">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="page">
+        <header>
+            <h1>Chess LLM — Mistral 7B</h1>
+            <div class="subtitle">Προσαρμοσμένο Mistral 7B (v2) με επανακατάταξη από το Stockfish</div>
+        </header>
+
+        <nav class="tab-bar" role="tablist">
+            <button class="tab-btn active" data-tab="play" role="tab">
+                Παίξε με το μοντέλο
+            </button>
+            <button class="tab-btn" data-tab="ask" role="tab">
+                Ζήτα κίνηση
+            </button>
+        </nav>
+
+        <section class="tab-panel active" id="tab-play" role="tabpanel">
+            <p class="tab-intro">Εσύ σέρνεις τα κομμάτια, το μοντέλο απαντά.</p>
+
+            <div class="layout">
+                <div class="board-column">
+                    <div class="board-row">
+                        <div class="eval-bar-track" title="Αξιολόγηση Stockfish (από τη σκοπιά των Λευκών)">
+                            <div id="eval-bar-fill" class="eval-bar-fill" style="height: 50%"></div>
+                            <div id="eval-bar-label" class="eval-bar-label">0,0</div>
+                        </div>
+                        <div id="board-wrap">
+                            <div id="board" style="width: 520px"></div>
+                            <div id="board-overlay" class="board-overlay hidden">
+                                <div class="overlay-inner">
+                                    <div class="spinner"></div>
+                                    <div id="overlay-text">Το μοντέλο σκέφτεται… 0s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="color-select">Παίζεις ως</label>
+                            <select id="color-select">
+                                <option value="w" selected>Λευκά</option>
+                                <option value="b">Μαύρα</option>
+                            </select>
+                            <button id="btn-new-game" class="primary">Νέα παρτίδα</button>
+                        </div>
+                        <div class="control-group">
+                            <button id="btn-undo">Αναίρεση</button>
+                            <button id="btn-flip">Γύρισε τη σκακιέρα</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-panel">
+                    <div class="panel-section">
+                        <div class="panel-title">Κατάσταση</div>
+                        <div id="status" class="status-text">Παίζεις εσύ (Λευκά)</div>
+                        <div id="game-over-banner" class="game-over-banner hidden"></div>
+                    </div>
+
+                    <div class="panel-section history-section">
+                        <div class="panel-title">Κινήσεις</div>
+                        <div id="move-history" class="move-history">
+                            <em class="muted">Καμία κίνηση ακόμη</em>
+                        </div>
+                        <div class="copy-row">
+                            <button id="btn-copy-pgn" title="Αντιγράφει την παρτίδα σε PGN (για Lichess / Chess.com)">Αντιγραφή PGN</button>
+                            <span id="copy-feedback" class="copy-feedback"></span>
+                        </div>
+                    </div>
+
+                    <div class="panel-section">
+                        <div class="panel-title">Τελευταία κίνηση του μοντέλου</div>
+                        <div id="last-move-info" class="last-move-info">
+                            <em class="muted">Κάνε μια κίνηση για να ξεκινήσεις.</em>
+                        </div>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-candidates">
+                            Δείξε όλες τις υποψήφιες κινήσεις
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tab-panel" id="tab-ask" role="tabpanel">
+            <p class="tab-intro">
+                Επικόλλησε τις κινήσεις της παρτίδας σου από την αρχή — το μοντέλο την ξαναπαίζει
+                και προτείνει την επόμενη κίνηση.
+            </p>
+
+            <div class="ask-grid">
+                <div class="ask-input-col">
+                    <label class="field-label" for="analysis-moves">Κινήσεις της παρτίδας</label>
+                    <textarea id="analysis-moves" class="ask-input" rows="5" spellcheck="false"
+                              placeholder="π.χ. 1. e4 e5 2. Nf3 Nc6 3. Bb5   ή   e2e4 e7e5 g1f3 b8c6 f1b5   ή ολόκληρο PGN (Lichess: Share → PGN)"></textarea>
+                    <div class="ask-buttons">
+                        <button id="btn-advice" class="primary">Πάρε κίνηση ▸</button>
+                        <button id="btn-fill-example">Δοκίμασε με παράδειγμα</button>
+                        <button id="btn-continue-play" class="hidden">Συνέχισε την παρτίδα στη σκακιέρα ▸</button>
+                    </div>
+                    <div id="analysis-result" class="analysis-result"></div>
+                </div>
+
+                <div class="ask-help-col">
+                    <div class="help-title">Η θέση όπως την κατάλαβε το μοντέλο</div>
+                    <div id="ask-board" class="ask-board"></div>
+                    <div id="ask-position-info" class="ask-position-info muted">
+                        Θα εμφανιστεί εδώ μόλις πατήσεις «Πάρε κίνηση».
+                    </div>
+                    <div id="ask-moves-parsed" class="ask-moves-parsed"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+            crossorigin="anonymous"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>
