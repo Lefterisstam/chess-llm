@@ -7,7 +7,7 @@ move is chosen.
 This is the code of my master's thesis, *Development of a Chess Move Suggestion System Based on
 Large Language Models*.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Lefterisstam/chess-llm-thesis/blob/main/notebooks/demo.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Lefterisstam/chess-llm/blob/main/notebooks/demo.ipynb)
 
 ## How it works
 
