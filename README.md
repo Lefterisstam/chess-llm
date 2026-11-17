@@ -46,6 +46,26 @@ positions from the test set:
 The last two methods always return a legal move. Stockfish alone at depth 6, choosing among all legal
 moves, reaches 48.5%, so the final system matches the engine but does not beat it.
 
+### Full games
+
+20 games per opponent, colours alternating, games longer than 300 half-moves counted as draws.
+
+| Opponent | W / D / L | Score |
+|---|---|---|
+| Random legal moves | 20 / 0 / 0 | 100% |
+| GPT-2, no fine-tuning | 17 / 3 / 0 | 92.5% |
+| Mistral 7B, no fine-tuning | 20 / 0 / 0 | 100% |
+| Stockfish, depth 1 | 11 / 7 / 2 | 72.5% |
+| Stockfish, depth 2 | 9 / 6 / 5 | 60% |
+| Stockfish, depth 3 | 11 / 3 / 6 | 62.5% |
+| Stockfish, depth 4 | 12 / 1 / 7 | 62.5% |
+| Stockfish, depth 5 | 6 / 3 / 11 | 37.5% |
+| Stockfish, depth 6 | 2 / 3 / 15 | 17.5% |
+| Stockfish, depth 7 | 0 / 6 / 14 | 15% |
+
+The system beats Stockfish up to depth 4 and loses from depth 5 on, although its own rerank
+searches at depth 6. This points to the limit of ten candidates rather than to the search depth.
+
 ## Data
 
 - Two months of Lichess games (November 2020 and June 2024), 167.6 million games.
@@ -103,6 +123,6 @@ model/training/    training script
 model/inference/   ways of getting a move out of the model, Stockfish rerank
 evaluation/        accuracy, centipawn loss, per-phase analysis, full games
 web/               Flask app with a board to play against the model
-notebooks/         Colab notebooks for the data, the training and the demo
+notebooks/         Colab notebooks for the data, the training, the games against Stockfish and the demo
 tests/             pytest tests, run with `pytest`
 ```
