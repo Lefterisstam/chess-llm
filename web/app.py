@@ -187,6 +187,7 @@ def create_app(predictor=None, meta: dict | None = None) -> Flask:
         try:
             if moves_text and start_fen is None and looks_like_fen(moves_text):
                 board = chess.Board(moves_text)
+                start_fen = board.fen()
                 uci_moves, san_moves = [], []
                 warning = ("Δόθηκε μόνο FEN χωρίς ιστορικό κινήσεων. Το μοντέλο εκπαιδεύτηκε "
                            "πάντα με τις προηγούμενες κινήσεις στο prompt — η πρόταση μπορεί να "
@@ -211,6 +212,7 @@ def create_app(predictor=None, meta: dict | None = None) -> Flask:
             "fen": board.fen(),
             "side_to_move": "White" if board.turn == chess.WHITE else "Black",
             "ply": len(uci_moves),
+            "move_number": board.fullmove_number,
             "san_moves": san_moves,
             "uci_moves": uci_moves,
             "history_used": history,

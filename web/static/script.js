@@ -314,8 +314,7 @@
         $("#ask-board .square-" + data.move_uci.substring(2, 4)).addClass("highlight-to");
 
         var side = data.side_to_move === "White" ? "τα Λευκά" : "τα Μαύρα";
-        var moveNumber = Math.floor(data.ply / 2) + 1;
-        $("#ask-position-info").removeClass("muted").text("Παίζουν " + side + " · κίνηση " + moveNumber);
+        $("#ask-position-info").removeClass("muted").text("Παίζουν " + side + " · κίνηση " + data.move_number);
         renderParsedMoves(data.san_moves);
 
         var html = '<span class="advice-move">' + escapeHtml(data.move_san) + "</span> " +

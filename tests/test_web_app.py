@@ -417,7 +417,7 @@ class TestAdviseEndpoint:
         d = resp.get_json()
         assert d["fen"] == RUY_LOPEZ_FEN
         assert d["side_to_move"] == "Black"
-        assert d["ply"] == 5
+        assert d["ply"] == 5 and d["move_number"] == 3
         assert d["san_moves"] == ["e4", "e5", "Nf3", "Nc6", "Bb5"]
         assert d["uci_moves"] == ["e2e4", "e7e5", "g1f3", "b8c6", "f1b5"]
         assert d["history_used"] == "e2e4 e7e5 g1f3 b8c6 f1b5"
@@ -447,6 +447,8 @@ class TestAdviseEndpoint:
         assert d["history_used"] == NO_HISTORY
         assert d["warning"] and "ιστορικό" in d["warning"]
         assert p.calls[0][1] == NO_HISTORY
+        assert d["start_fen"] == RUY_LOPEZ_FEN and d["uci_moves"] == []
+        assert d["move_number"] == 3
 
     def test_start_fen_plus_moves(self):
         p = self._RecordingPredictor()
